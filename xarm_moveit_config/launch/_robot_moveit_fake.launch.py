@@ -69,7 +69,7 @@ def launch_setup(context, *args, **kwargs):
         robot_type=robot_type.perform(context)
     )
 
-    moveit_config = MoveItConfigsBuilder(
+    moveit_config = (MoveItConfigsBuilder(
         context=context,
         controllers_name=controllers_name,
         dof=dof,
@@ -105,7 +105,14 @@ def launch_setup(context, *args, **kwargs):
         geometry_mesh_origin_rpy=geometry_mesh_origin_rpy,
         geometry_mesh_tcp_xyz=geometry_mesh_tcp_xyz,
         geometry_mesh_tcp_rpy=geometry_mesh_tcp_rpy,
-    ).to_moveit_configs()
+    )
+    .planning_scene_monitor(
+            publish_robot_description=True, publish_robot_description_semantic=True
+    )
+    .planning_pipelines(
+        pipelines=["ompl"]
+    )
+    .to_moveit_configs())
     
     # robot description launch
     # xarm_description/launch/_robot_description.launch.py
