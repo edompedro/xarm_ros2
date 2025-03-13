@@ -110,7 +110,7 @@ def launch_setup(context, *args, **kwargs):
             publish_robot_description=True, publish_robot_description_semantic=True
     )
     .planning_pipelines(
-        pipelines=["ompl"]
+        pipelines=["ompl", "chomp"]
     )
     .to_moveit_configs())
     
