@@ -1,4 +1,3 @@
-
 #include <chrono>
 #include <iostream>
 #include <memory>
@@ -35,15 +34,14 @@ public:
                     bool remove_collision_object = false, 
                     bool get_objects = false,
                     std::vector<std::string> object_ids = std::vector<std::string>(),
-                    moveit_msgs::msg::CollisionObject collision_object = moveit_msgs::msg::CollisionObject()) 
-  : yasmin::State({"outcome3"}),
-  add_collision_object(add_collision_object),
-  remove_collision_object(remove_collision_object),
-  get_objects(get_objects),
-  object_ids(object_ids),
-  collision_object(collision_object)
-  {
-  }
+                    moveit_msgs::msg::CollisionObject collision_object = moveit_msgs::msg::CollisionObject()
+  ): yasmin::State({"success"}),
+    add_collision_object(add_collision_object),
+    remove_collision_object(remove_collision_object),
+    get_objects(get_objects),
+    object_ids(object_ids),
+    collision_object(collision_object)
+  {}
 
   /**
    * @brief Executes the state logic.
@@ -53,12 +51,10 @@ public:
    * collision objects, or retrieving object IDs from the planning scene.
    *
    * @param blackboard Shared pointer to the blackboard for state communication.
-   * @return std::string The outcome of the execution: "outcome3".
+   * @return std::string The outcome of the execution: "succees".
    */
-  std::string
-  execute(std::shared_ptr<yasmin::blackboard::Blackboard> blackboard) override {
+  std::string execute(std::shared_ptr<yasmin::blackboard::Blackboard> blackboard) override {
     YASMIN_LOG_INFO("Executing state SceneManagerState");
-    // std::this_thread::sleep_for(std::chrono::seconds(10));
     moveit::planning_interface::PlanningSceneInterface planning_scene_interface_;
 
     // Add object to the planning scene
@@ -68,6 +64,7 @@ public:
     // Remove object from the planning scene
     else if (this->remove_collision_object) {
       planning_scene_interface_.removeCollisionObjects(this->object_ids);
+      YASMIN_LOG_INFO("Removed collision objects");
     }
     // Get object IDs from the planning scene and remove them or store them in the blackboard
     if (this->get_objects) {
@@ -77,13 +74,13 @@ public:
       }
       else {
         blackboard->set<std::vector<std::string>>("object_ids", object_ids);
+        YASMIN_LOG_INFO("Stored object IDs in blackboard, ids: " + object_ids);
       }
     }
 
-    return "outcome3";
+    return "success";
   }
 };
-
 
 
 /**
@@ -112,14 +109,12 @@ int main(int argc, char *argv[]) {
     collision_object.header.frame_id = frame_id;
     collision_object.id = "box1";
     shape_msgs::msg::SolidPrimitive primitive;
-
     // Define the size of the box in meters
     primitive.type = primitive.BOX;
     primitive.dimensions.resize(3);
     primitive.dimensions[primitive.BOX_X] = 0.5;
     primitive.dimensions[primitive.BOX_Y] = 0.1;
     primitive.dimensions[primitive.BOX_Z] = 0.5;
-
     // Define the pose of the box (relative to the frame_id)
     geometry_msgs::msg::Pose box_pose;
     box_pose.orientation.w = 1.0;
@@ -135,7 +130,7 @@ int main(int argc, char *argv[]) {
   }();
 
   // Create a state machine
-  auto sm = std::make_shared<yasmin::StateMachine>(std::initializer_list<std::string>{"success", "outcome4"});
+  auto sm = std::make_shared<yasmin::StateMachine>(std::initializer_list<std::string>{"success", "outcome4", "end"});
   // Add states to the state machine
   sm->add_state("FOO", std::make_shared<FooState>(),
                 {
@@ -144,13 +139,12 @@ int main(int argc, char *argv[]) {
                 });
   sm->add_state("BAR", std::make_shared<SceneManagerState>(true, false, false, std::vector<std::string>(), collision_object_),
                 {
-                    {"outcome3", "remove"},
+                    {"success", "remove"},
                 });
   sm->add_state("remove", std::make_shared<SceneManagerState>(false, true, true),
                 {
-                    {"outcome3", "success"},
+                    {"success", "end"},
                 });
-
 
   // Execute the state machine
   try {
