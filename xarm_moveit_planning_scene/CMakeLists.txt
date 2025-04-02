@@ -45,7 +45,7 @@ install(TARGETS
 )
 
 # scene_manager_state
-add_executable(scene_manager_state src/scene_manager_state.cpp src/scene_manager.cpp)
+add_executable(scene_manager_state src/scene_manager_state.cpp)
 ament_target_dependencies(scene_manager_state ${DEPENDENCIES})
 install(TARGETS 
   scene_manager_state

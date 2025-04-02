@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
       // Define the pose of the box (relative to the frame_id)
       geometry_msgs::msg::Pose box_pose;
       box_pose.orientation.w = 1.0;
-      box_pose.position.x = 0.2;
+      box_pose.position.x = 0.5;
       box_pose.position.y = 0.2 * i;
       box_pose.position.z = 0.25;
 
