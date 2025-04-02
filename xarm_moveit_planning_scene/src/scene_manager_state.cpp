@@ -54,7 +54,7 @@ public:
    * @return std::string The outcome of the execution: "succees".
    */
   std::string execute(std::shared_ptr<yasmin::blackboard::Blackboard> blackboard) override {
-    YASMIN_LOG_INFO("Executing state SceneManagerState");
+    // YASMIN_LOG_INFO("Executing state SceneManagerState");
     moveit::planning_interface::PlanningSceneInterface planning_scene_interface_;
 
     // Add object to the planning scene
@@ -64,7 +64,7 @@ public:
     // Remove object from the planning scene
     else if (this->remove_collision_object) {
       planning_scene_interface_.removeCollisionObjects(this->object_ids);
-      YASMIN_LOG_INFO("Removed collision objects");
+      // YASMIN_LOG_INFO("Removed collision objects");
     }
     // Get object IDs from the planning scene and remove them or store them in the blackboard
     if (this->get_objects) {
@@ -74,7 +74,7 @@ public:
       }
       else {
         blackboard->set<std::vector<std::string>>("object_ids", object_ids);
-        YASMIN_LOG_INFO("Stored object IDs in blackboard, ids: " + object_ids);
+        // YASMIN_LOG_INFO("Stored object IDs in blackboard, ids: " + object_ids);
       }
     }
 
@@ -96,7 +96,7 @@ public:
  * @throws std::exception If there is an error during state machine execution.
  */
 int main(int argc, char *argv[]) {
-  YASMIN_LOG_INFO("moveit_yasmin_demo");
+  // YASMIN_LOG_INFO("moveit_yasmin_demo");
   rclcpp::init(argc, argv);
 
   // Set ROS 2 logs
@@ -130,13 +130,8 @@ int main(int argc, char *argv[]) {
   }();
 
   // Create a state machine
-  auto sm = std::make_shared<yasmin::StateMachine>(std::initializer_list<std::string>{"success", "outcome4", "end"});
+  auto sm = std::make_shared<yasmin::StateMachine>(std::initializer_list<std::string>{"end"});
   // Add states to the state machine
-  sm->add_state("FOO", std::make_shared<FooState>(),
-                {
-                    {"outcome1", "BAR"},
-                    {"outcome2", "outcome4"},
-                });
   sm->add_state("BAR", std::make_shared<SceneManagerState>(true, false, false, std::vector<std::string>(), collision_object_),
                 {
                     {"success", "remove"},
@@ -149,9 +144,9 @@ int main(int argc, char *argv[]) {
   // Execute the state machine
   try {
     std::string outcome = (*sm.get())();
-    YASMIN_LOG_INFO(outcome.c_str());
+    // YASMIN_LOG_INFO(outcome.c_str());
   } catch (const std::exception &e) {
-    YASMIN_LOG_WARN(e.what());
+    // YASMIN_LOG_WARN(e.what());
   }
 
   // Cancel state machine on ROS 2 shutdown
