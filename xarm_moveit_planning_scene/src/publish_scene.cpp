@@ -61,7 +61,28 @@ int main(int argc, char** argv)
   planning_scene.is_diff = true;
   planning_scene_diff_publisher->publish(planning_scene);
 
+  // Set a target Pose
+  auto const target_pose = [] {
+    geometry_msgs::msg::Pose msg;
+    msg.orientation.w = 1.0;
+    msg.position.x = 0.28;
+    msg.position.y = 0.4;  // <---- This value was changed
+    msg.position.z = 0.5;
+    return msg;
+  }();
+  move_group_interface.setPoseTarget(target_pose);
 
+    // Create a plan to that target pose
+  auto const [success, plan] = [&move_group_interface]{
+    moveit::planning_interface::MoveGroupInterface::Plan msg;
+    auto const ok = static_cast<bool>(move_group_interface.plan(msg));
+    return std::make_pair(ok, msg);
+  }();
+
+  // Execute the plan
+  if(success) {
+    move_group_interface.execute(plan);
+  } 
 
   // Shutdown ROS
   rclcpp::shutdown();  // <--- This will cause the spin function in the thread to return
