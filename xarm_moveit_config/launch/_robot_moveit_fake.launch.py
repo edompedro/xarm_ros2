@@ -108,11 +108,10 @@ def launch_setup(context, *args, **kwargs):
     )
     .planning_scene_monitor(
             publish_robot_description=True, publish_robot_description_semantic=True
+    ).planning_pipelines(
+            pipelines=["ompl"]
+    ).to_moveit_configs()
     )
-    .planning_pipelines(
-        pipelines=["ompl"]
-    )
-    .to_moveit_configs())
     
     # robot description launch
     # xarm_description/launch/_robot_description.launch.py
